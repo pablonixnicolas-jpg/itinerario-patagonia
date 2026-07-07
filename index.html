@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Patagonia 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F5F7F6;
+    --surface:#FFFFFF;
+    --ink:#15222B;
+    --ink-soft:#4C5C63;
+    --ink-faint:#8B9AA0;
+    --line:#DCE3E2;
+    --teal:#2F6F70;
+    --teal-deep:#1C4748;
+    --teal-soft:#E4EFEE;
+    --amber:#D8932F;
+    --amber-soft:#FBEFDA;
+    --amber-deep:#7A5418;
+    --coral:#C75B3D;
+    --coral-soft:#FAE6DD;
+    --coral-deep:#7A331E;
+    --radius:16px;
+    --font-d:'Fraunces',serif;
+    --font-b:'Plus Jakarta Sans',-apple-system,system-ui,sans-serif;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0; background:var(--bg); color:var(--ink); font-family:var(--font-b); -webkit-font-smoothing:antialiased;}
+  body{padding-bottom:84px; min-height:100vh;}
+  button{font-family:inherit; cursor:pointer; border:none; background:none;}
+  a{color:inherit;}
+  ::-webkit-scrollbar{display:none;}
+
+  .shell{max-width:480px; margin:0 auto; position:relative;}
+
+  /* top bar */
+  .topbar{padding:22px 20px 16px; position:sticky; top:0; background:var(--bg); z-index:5; border-bottom:1px solid transparent;}
+  .topbar.scrolled{border-bottom-color:var(--line);}
+  .eyebrow{font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-faint); font-weight:600; margin:0 0 4px;}
+  .pagetitle{font-family:var(--font-d); font-size:26px; font-weight:600; margin:0; color:var(--ink);}
+
+  /* countdown stamp */
+  .stamp{margin:18px 20px 6px; background:var(--teal-deep); color:#fff; border-radius:20px; padding:18px 20px; display:flex; align-items:center; justify-content:space-between; gap:12px;}
+  .stamp-num{font-family:var(--font-d); font-size:38px; font-weight:600; line-height:1;}
+  .stamp-label{font-size:12px; color:#B9D6D6; margin-top:4px;}
+  .stamp-route{text-align:right; font-size:12.5px; color:#CFE3E2; line-height:1.5;}
+  .stamp-route b{color:#fff; font-weight:600;}
+
+  /* tabs content */
+  .view{display:none; padding:4px 20px 24px;}
+  .view.active{display:block;}
+
+  /* timeline */
+  .timeline{position:relative; margin-top:10px;}
+  .timeline::before{content:''; position:absolute; left:21px; top:8px; bottom:8px; width:2px; background:var(--line);}
+  .day{position:relative; padding-left:52px; margin-bottom:14px;}
+  .day-dot{position:absolute; left:0; top:2px; width:44px; height:44px; border-radius:50%; background:var(--surface); border:1.5px solid var(--line); display:flex; align-items:center; justify-content:center; font-family:var(--font-d); font-weight:600; font-size:15px; color:var(--ink-soft);}
+  .day-dot.free{background:var(--amber-soft); border-color:var(--amber); color:var(--amber-deep);}
+  .day-card{width:100%; text-align:left; background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:13px 14px; display:block;}
+  .day-card:active{transform:scale(.99);}
+  .day-top{display:flex; justify-content:space-between; align-items:baseline; gap:8px; margin-bottom:5px;}
+  .day-date{font-size:12px; color:var(--ink-faint); font-weight:600;}
+  .city-pill{font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:99px; letter-spacing:.02em;}
+  .city-Ushuaia{background:var(--teal-soft); color:var(--teal-deep);}
+  .city-El.Calafate, .city-ElCalafate{background:var(--coral-soft); color:var(--coral-deep);}
+  .city-Bariloche{background:#EFE6F6; color:#5A3680;}
+  .city-Buenos.Aires, .city-BuenosAires{background:var(--amber-soft); color:var(--amber-deep);}
+  .day-title{font-size:15px; font-weight:600; margin:0 0 2px; color:var(--ink);}
+  .day-desc{font-size:12.5px; color:var(--ink-soft); line-height:1.5; margin:0;}
+  .free-badge{display:inline-flex; align-items:center; gap:4px; margin-top:8px; font-size:11px; font-weight:700; color:var(--amber-deep); background:var(--amber-soft); padding:3px 9px; border-radius:99px;}
+
+  /* filter row */
+  .filters{display:flex; gap:8px; margin:14px 0 4px;}
+  .filter-btn{flex:1; padding:10px; font-size:13px; font-weight:600; border:1px solid var(--line); border-radius:12px; background:var(--surface); color:var(--ink-soft);}
+  .filter-btn.on{background:var(--ink); color:#fff; border-color:var(--ink);}
+
+  /* section headers */
+  .section-h{font-family:var(--font-d); font-size:19px; font-weight:600; margin:18px 0 10px;}
+  .section-sub{font-size:12.5px; color:var(--ink-soft); margin:-6px 0 14px; line-height:1.5;}
+
+  /* doc vault */
+  .doc-card{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:14px 16px; margin-bottom:10px;}
+  .doc-card h4{margin:0 0 8px; font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--teal-deep);}
+  .doc-row{display:flex; justify-content:space-between; gap:10px; font-size:13px; padding:6px 0; border-top:1px solid var(--line);}
+  .doc-row:first-of-type{border-top:none;}
+  .doc-row span:first-child{color:var(--ink-soft);}
+  .doc-row span:last-child{font-weight:600; text-align:right;}
+  .custom-form{display:flex; gap:8px; margin-top:10px;}
+  .custom-form input{flex:1; height:38px; border-radius:10px; border:1px solid var(--line); padding:0 10px; font-size:13px; background:var(--bg);}
+  .custom-form button{height:38px; width:38px; border-radius:10px; background:var(--ink); color:#fff; font-size:18px; line-height:1;}
+  .custom-item{display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-top:1px solid var(--line); font-size:13px;}
+  .custom-item button{color:var(--coral); font-size:11px; font-weight:700;}
+
+  /* history feed */
+  .feed-item{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:13px 15px; margin-bottom:10px;}
+  .feed-top{display:flex; justify-content:space-between; font-size:11px; color:var(--ink-faint); margin-bottom:5px; font-weight:600;}
+  .feed-text{font-size:13.5px; line-height:1.5;}
+  .feed-text b{font-weight:700;}
+  .empty{text-align:center; padding:40px 16px; color:var(--ink-faint); font-size:13.5px; line-height:1.6;}
+
+  /* bottom nav */
+  .navbar{position:fixed; left:0; right:0; bottom:0; background:rgba(255,255,255,.92); backdrop-filter:blur(14px); border-top:1px solid var(--line); display:flex; max-width:480px; margin:0 auto; padding:6px 6px calc(6px + env(safe-area-inset-bottom)); z-index:20;}
+  .navbtn{flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:8px 0; border-radius:12px; color:var(--ink-faint);}
+  .navbtn.on{color:var(--teal-deep); background:var(--teal-soft);}
+  .navbtn svg{width:21px; height:21px;}
+  .navbtn span{font-size:10.5px; font-weight:700;}
+
+  /* sheet */
+  .scrim{position:fixed; inset:0; background:rgba(15,30,35,.45); z-index:30; display:none;}
+  .scrim.show{display:block;}
+  .sheet{position:fixed; left:0; right:0; bottom:0; max-width:480px; margin:0 auto; background:var(--surface); border-radius:22px 22px 0 0; z-index:31; max-height:88vh; overflow-y:auto; transform:translateY(100%); transition:transform .28s cubic-bezier(.32,.72,0,1); padding:10px 20px calc(28px + env(safe-area-inset-bottom));}
+  .sheet.show{transform:translateY(0);}
+  .sheet-grab{width:36px; height:4px; background:var(--line); border-radius:99px; margin:8px auto 14px;}
+  .sheet-pill{display:inline-block; font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:99px; margin-bottom:10px;}
+  .sheet-title{font-family:var(--font-d); font-size:21px; font-weight:600; margin:0 0 4px;}
+  .sheet-date{font-size:12px; color:var(--ink-faint); font-weight:600; margin-bottom:14px;}
+  .sheet-desc{font-size:14px; line-height:1.65; color:var(--ink-soft); margin-bottom:16px;}
+  .linkrow{display:flex; gap:10px; margin-bottom:16px;}
+  .linkbtn{flex:1; display:flex; align-items:center; justify-content:center; gap:6px; height:46px; border-radius:12px; border:1px solid var(--line); font-size:13px; font-weight:600; background:var(--bg);}
+  .linkbtn svg{width:16px; height:16px;}
+  .pack-title{font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-faint); margin:0 0 8px;}
+  .pack-list{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:18px;}
+  .pack-chip{font-size:12px; background:var(--bg); border:1px solid var(--line); padding:5px 10px; border-radius:99px; color:var(--ink-soft);}
+  .note-box{background:var(--amber-soft); border-radius:14px; padding:14px;}
+  .note-box h4{margin:0 0 10px; font-size:13px; font-weight:700; color:var(--amber-deep);}
+  .note-form{display:flex; flex-direction:column; gap:8px; margin-bottom:12px;}
+  .note-form input, .note-form textarea{border:1px solid #E9CE9E; border-radius:10px; padding:9px 11px; font-size:13px; font-family:inherit; background:#fff;}
+  .note-form button{align-self:flex-end; background:var(--amber-deep); color:#fff; padding:8px 16px; border-radius:10px; font-size:13px; font-weight:700;}
+  .note-item{background:#fff; border-radius:10px; padding:9px 11px; margin-top:8px; font-size:13px;}
+  .note-item .who{font-weight:700; font-size:11.5px; color:var(--amber-deep); margin-bottom:2px;}
+
+  .toast{position:fixed; bottom:96px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; font-size:12.5px; font-weight:600; padding:10px 18px; border-radius:99px; z-index:50; opacity:0; pointer-events:none; transition:opacity .25s;}
+  .toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="topbar" id="topbar">
+    <p class="eyebrow" id="tabEyebrow">Familia · Patagonia argentina</p>
+    <h1 class="pagetitle" id="tabTitle">11 — 27 julio 2026</h1>
+  </div>
+
+  <!-- INICIO -->
+  <div class="view active" id="view-inicio">
+    <div class="stamp">
+      <div>
+        <div class="stamp-num" id="countdownNum">--</div>
+        <div class="stamp-label">días para salir</div>
+      </div>
+      <div class="stamp-route">Guatemala → Buenos Aires<br><b>Ushuaia · Calafate · Bariloche</b><br>17 días, 16 noches</div>
+    </div>
+
+    <div class="filters">
+      <button class="filter-btn on" data-f="all">Los 17 días</button>
+      <button class="filter-btn" data-f="free">Tiempo libre</button>
+    </div>
+
+    <div class="timeline" id="timeline"></div>
+  </div>
+
+  <!-- DOCUMENTOS -->
+  <div class="view" id="view-documentos">
+    <p class="section-sub">Todo lo que vienen pidiendo al check-in, en un solo lugar.</p>
+    <div class="doc-card">
+      <h4>Vuelos internacionales</h4>
+      <div class="doc-row"><span>Ida · 11 jul</span><span>Copa 389 07:09 GUA→PTY<br>Copa 219 → EZE 22:27</span></div>
+      <div class="doc-row"><span>Vuelta · 27 jul</span><span>Copa 278 14:49 EZE→PTY<br>Copa 496 → GUA 23:07</span></div>
+      <div class="doc-row"><span>Internos</span><span>Aerolíneas Argentinas</span></div>
+    </div>
+    <div class="doc-card">
+      <h4>Hoteles (5*)</h4>
+      <div class="doc-row"><span>Buenos Aires</span><span><a href="https://sofitel.accor.com/en/hotels/8932.html" target="_blank" rel="noopener" style="color:var(--teal-deep); text-decoration:underline;">Sofitel Recoleta ↗</a></span></div>
+      <div class="doc-row"><span>Ushuaia</span><span><a href="https://www.lashayas.com.ar/" target="_blank" rel="noopener" style="color:var(--teal-deep); text-decoration:underline;">Las Hayas ↗</a></span></div>
+      <div class="doc-row"><span>El Calafate</span><span><a href="https://www.hotelxelena.com/" target="_blank" rel="noopener" style="color:var(--teal-deep); text-decoration:underline;">Xelena ↗</a></span></div>
+      <div class="doc-row"><span>Bariloche</span><span><a href="https://www.choicehotels.com/es-xl/argentina/san-carlos-de-bariloche/radisson-blu-hotels/aa022" target="_blank" rel="noopener" style="color:var(--teal-deep); text-decoration:underline;">Radisson Blu ↗</a></span></div>
+    </div>
+    <div class="doc-card">
+      <h4>Seguro y agencia</h4>
+      <div class="doc-row"><span>Assist-Card</span><span>Cobertura esquí hasta $60,000</span></div>
+      <div class="doc-row"><span>Turansa</span><span>Lesbia Roxana López</span></div>
+      <div class="doc-row"><span>Teléfono</span><span>(502) 2390-5757</span></div>
+    </div>
+    <div class="doc-card">
+      <h4>Códigos y notas propias</h4>
+      <div id="customList"></div>
+      <div class="custom-form">
+        <input id="customLabel" placeholder="Ej. Confirmación Sofitel">
+        <input id="customValue" placeholder="Código / dato">
+        <button id="customAdd">+</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORIAL -->
+  <div class="view" id="view-historial">
+    <p class="section-sub">Notas y votos de toda la familia, en orden. Se guardan en el celular de quien abre el enlace y se comparten entre todos.</p>
+    <div id="feedList"></div>
+  </div>
+
+</div>
+
+<div class="navbar">
+  <button class="navbtn on" data-tab="inicio">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9"/></svg>
+    <span>Inicio</span>
+  </button>
+  <button class="navbtn" data-tab="documentos">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+    <span>Documentos</span>
+  </button>
+  <button class="navbtn" data-tab="historial">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>
+    <span>Historial</span>
+  </button>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- storage helpers ---------- */
+async function getData(key, fallback){
+  try{
+    const r = await window.storage.get(key, true);
+    return r ? JSON.parse(r.value) : fallback;
+  }catch(e){ return fallback; }
+}
+async function setData(key, value){
+  try{ await window.storage.set(key, JSON.stringify(value), true); }
+  catch(e){ console.error('storage error', e); }
+}
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 1800);
+}
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function ytSearch(q){ return 'https://www.youtube.com/results?search_query='+encodeURIComponent(q); }
+function wikiSearch(q){ return 'https://es.wikipedia.org/w/index.php?search='+encodeURIComponent(q); }
+function cityClass(c){ return 'city-'+c.replace(/\s+/g,''); }
+
+/* ---------- trip data ---------- */
+const days = [
+{n:1, date:'Sáb 11 jul', city:'Buenos Aires', title:'Guatemala → Buenos Aires', desc:'Vuelo Copa 389/219. Salida 07:09, llegada a Ezeiza 22:27. Traslado al hotel.', free:false, q:'aeropuerto Ezeiza Buenos Aires', pack:[]},
+{n:2, date:'Dom 12 jul', city:'Ushuaia', title:'Buenos Aires → Ushuaia', desc:'Traslado al aeroparque Jorge Newbery, vuelo a Ushuaia y traslado al hotel.', free:true, freeNote:'Tarde libre', q:'Ushuaia ciudad más austral del mundo', pack:['Abrigo de invierno','Calzado antideslizante']},
+{n:3, date:'Lun 13 jul', city:'Ushuaia', title:'Tierra del Fuego + Tren del Fin del Mundo', desc:'Parque Nacional Tierra del Fuego, Tren del Fin del Mundo (clase turista) y navegación a la Isla de Lobos y Pájaros por el Canal de Beagle.', free:false, q:'Tren del Fin del Mundo Tierra del Fuego', pack:['Abrigo','Cámara de fotos','Calzado de trekking']},
+{n:4, date:'Mar 14 jul', city:'Ushuaia', title:'Esquí en Cerro Castor', desc:'Traslado ida y vuelta. Salida 8:30 o 10:30, regreso 15:30 o 17:00. El equipo se renta en el centro.', free:true, freeNote:'Noche libre', q:'Cerro Castor Ushuaia esquí', pack:['Ropa térmica','Guantes y gorro','Gafas de sol','Protector solar']},
+{n:5, date:'Mié 15 jul', city:'Ushuaia', title:'Esquí en Cerro Castor', desc:'Traslado ida y vuelta. Salida 8:30 o 10:30, regreso 15:30 o 17:00. El equipo se renta en el centro.', free:true, freeNote:'Noche libre', q:'Cerro Castor Ushuaia esquí', pack:['Ropa térmica','Guantes y gorro','Gafas de sol','Protector solar']},
+{n:6, date:'Jue 16 jul', city:'El Calafate', title:'Ushuaia → El Calafate', desc:'Mañana libre en Ushuaia. Traslado al aeropuerto, vuelo a El Calafate y traslado al hotel.', free:true, freeNote:'Mañana y tarde libres', q:'El Calafate Santa Cruz Patagonia', pack:[]},
+{n:7, date:'Vie 17 jul', city:'El Calafate', title:'Glaciar Perito Moreno', desc:'Día completo. Pasarelas de tres niveles frente al glaciar y Safari Náutico por el Brazo Rico, a 500 m de la pared sur.', free:false, q:'Glaciar Perito Moreno', pack:['Abrigo','Calzado cómodo']},
+{n:8, date:'Sáb 18 jul', city:'El Calafate', title:'Tour Todo Glaciares', desc:'Navegación desde Punta Bandera por el Canal Upsala y Spegazzini. Baja en la Base Spegazzini con caminata por el Sendero del Bosque. Almuerzo no incluido.', free:false, q:'Todo Glaciares Spegazzini Upsala navegación', pack:['Abrigo','Almuerzo o dinero para el refugio']},
+{n:9, date:'Dom 19 jul', city:'Bariloche', title:'El Calafate → Bariloche', desc:'Mañana libre. Vuelo a Bariloche (posible conexión en Buenos Aires) y traslado al hotel.', free:true, freeNote:'Resto del día libre', q:'San Carlos de Bariloche Patagonia', pack:[]},
+{n:10, date:'Lun 20 jul', city:'Bariloche', title:'Traslado a Cerro Catedral', desc:'Solo traslado compartido hotel-cerro-hotel, 8:00 a 17:30. No incluye guía ni equipo de esquí/snow.', free:false, q:'Cerro Catedral Bariloche esquí', pack:['Ropa térmica','Equipo se renta en el cerro']},
+{n:11, date:'Mar 21 jul', city:'Bariloche', title:'Traslado a Cerro Catedral', desc:'Solo traslado compartido hotel-cerro-hotel, 8:00 a 17:30. No incluye guía ni equipo de esquí/snow.', free:false, q:'Cerro Catedral Bariloche esquí', pack:['Ropa térmica','Equipo se renta en el cerro']},
+{n:12, date:'Mié 22 jul', city:'Buenos Aires', title:'Bariloche → Buenos Aires', desc:'Traslado al aeropuerto, vuelo a Buenos Aires y traslado al hotel.', free:true, freeNote:'Tarde libre', q:'vuelo Bariloche Buenos Aires', pack:[]},
+{n:13, date:'Jue 23 jul', city:'Buenos Aires', title:'City tour + cena show de tango', desc:'Recorrido por Plaza de Mayo, San Telmo, La Boca y Caminito, Recoleta, Palermo y Puerto Madero. Noche: cena show en Michelángelo, San Telmo.', free:false, q:'Buenos Aires city tour La Boca Caminito', pack:[]},
+{n:14, date:'Vie 24 jul', city:'Buenos Aires', title:'Día libre', desc:'Sin actividades programadas por la agencia.', free:true, freeNote:'Día libre', q:'qué hacer en Buenos Aires', pack:[]},
+{n:15, date:'Sáb 25 jul', city:'Buenos Aires', title:'Día libre', desc:'Sin actividades programadas por la agencia. El día más amplio de todo el viaje.', free:true, freeNote:'Día libre completo', q:'qué hacer en Buenos Aires', pack:[]},
+{n:16, date:'Dom 26 jul', city:'Buenos Aires', title:'Fiesta gaucha · Estancia Santa Susana', desc:'Día completo a 80 km de Buenos Aires. Asado argentino, danzas folclóricas, tango, malambo con boleadoras y destrezas gauchas.', free:false, q:'Estancia Santa Susana fiesta gaucha', pack:['Ropa cómoda','Cámara']},
+{n:17, date:'Lun 27 jul', city:'Buenos Aires', title:'Buenos Aires → Guatemala', desc:'Mañana libre. Traslado a Ezeiza. Vuelo Copa 278 sale 14:49, conecta con Copa 496 que llega 23:07.', free:true, freeNote:'Mañana libre', q:'vuelo Buenos Aires Panamá Guatemala', pack:[]},
+];
+
+/* ---------- render: timeline ---------- */
+function renderTimeline(filter){
+  const data = filter==='free' ? days.filter(d=>d.free) : days;
+  const html = data.map(d=>`
+    <div class="day">
+      <div class="day-dot ${d.free?'free':''}">${d.n}</div>
+      <button class="day-card" onclick="openDay(${d.n})">
+        <div class="day-top">
+          <span class="day-date">Día ${d.n} · ${d.date}</span>
+          <span class="city-pill ${cityClass(d.city)}">${d.city}</span>
+        </div>
+        <p class="day-title">${d.title}</p>
+        <p class="day-desc">${d.desc}</p>
+        ${d.free?`<span class="free-badge">${d.freeNote}</span>`:''}
+      </button>
+    </div>`).join('');
+  document.getElementById('timeline').innerHTML = html;
+}
+document.querySelectorAll('.filter-btn').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    document.querySelectorAll('.filter-btn').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    renderTimeline(b.dataset.f);
+  });
+});
+
+/* ---------- day sheet ---------- */
+async function openDay(n){
+  const d = days.find(x=>x.n===n);
+  const notes = d.free ? await getData('notes:day'+n, []) : [];
+  const sheet = document.getElementById('sheet');
+  sheet.innerHTML = `
+    <div class="sheet-grab"></div>
+    <span class="sheet-pill ${cityClass(d.city)}">${d.city}</span>
+    <h2 class="sheet-title">${d.title}</h2>
+    <p class="sheet-date">Día ${d.n} · ${d.date}</p>
+    <p class="sheet-desc">${d.desc}</p>
+    <div class="linkrow">
+      <a class="linkbtn" target="_blank" rel="noopener" href="${wikiSearch(d.q)}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        Leer más
+      </a>
+      <a class="linkbtn" target="_blank" rel="noopener" href="${ytSearch(d.q)}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="6" width="18" height="12" rx="3"/><path d="m10 9.5 5 2.5-5 2.5z" fill="currentColor" stroke="none"/></svg>
+        Ver videos
+      </a>
+    </div>
+    ${d.pack.length?`<p class="pack-title">Para llevar ese día</p><div class="pack-list">${d.pack.map(p=>`<span class="pack-chip">${p}</span>`).join('')}</div>`:''}
+    ${d.free?`
+    <div class="note-box">
+      <h4>${d.freeNote} — ¿qué van a hacer?</h4>
+      <div class="note-form">
+        <input id="noteWho" placeholder="Tu nombre">
+        <textarea id="noteText" rows="2" placeholder="Ej. Vamos a Recoleta a ver el cementerio"></textarea>
+        <button onclick="addNote(${n})">Agregar</button>
+      </div>
+      <div id="noteList">${notes.map(noteHtml).join('')}</div>
+    </div>`:''}
+  `;
+  showSheet();
+}
+function noteHtml(it){
+  return `<div class="note-item"><div class="who">${it.person}</div>${it.text}</div>`;
+}
+async function addNote(n){
+  const who = document.getElementById('noteWho').value.trim();
+  const text = document.getElementById('noteText').value.trim();
+  if(!who || !text){ toast('Falta el nombre o el plan'); return; }
+  const key = 'notes:day'+n;
+  const notes = await getData(key, []);
+  notes.push({id:uid(), person:who, text, ts:Date.now(), day:n});
+  await setData(key, notes);
+  toast('Agregado al día '+n);
+  openDay(n);
+}
+
+/* ---------- sheet open/close ---------- */
+function showSheet(){
+  document.getElementById('scrim').classList.add('show');
+  document.getElementById('sheet').classList.add('show');
+}
+function hideSheet(){
+  document.getElementById('scrim').classList.remove('show');
+  document.getElementById('sheet').classList.remove('show');
+}
+document.getElementById('scrim').addEventListener('click', hideSheet);
+
+/* ---------- documentos ---------- */
+async function renderCustom(){
+  const items = await getData('vault:custom', []);
+  document.getElementById('customList').innerHTML = items.length ? items.map(it=>`
+    <div class="custom-item"><span>${it.label}: <b>${it.value}</b></span><button onclick="removeCustom('${it.id}')">quitar</button></div>
+  `).join('') : '';
+}
+document.getElementById('customAdd').addEventListener('click', async ()=>{
+  const label = document.getElementById('customLabel').value.trim();
+  const value = document.getElementById('customValue').value.trim();
+  if(!label||!value){ toast('Falta el dato o la etiqueta'); return; }
+  const items = await getData('vault:custom', []);
+  items.push({id:uid(), label, value});
+  await setData('vault:custom', items);
+  document.getElementById('customLabel').value='';
+  document.getElementById('customValue').value='';
+  renderCustom();
+  toast('Guardado');
+});
+async function removeCustom(id){
+  let items = await getData('vault:custom', []);
+  items = items.filter(i=>i.id!==id);
+  await setData('vault:custom', items);
+  renderCustom();
+}
+
+/* ---------- historial ---------- */
+async function renderFeed(){
+  let allNotes = [];
+  for(const d of days.filter(x=>x.free)){
+    const notes = await getData('notes:day'+d.n, []);
+    allNotes = allNotes.concat(notes.map(n=>({...n, dayInfo:d})));
+  }
+  allNotes.sort((a,b)=>b.ts-a.ts);
+  const el = document.getElementById('feedList');
+  if(!allNotes.length){ el.innerHTML = '<div class="empty">Todavía no hay notas.<br>Lo que agreguen en Inicio va a aparecer aquí.</div>'; return; }
+  el.innerHTML = allNotes.map(it=>{
+    const when = new Date(it.ts).toLocaleString('es-GT', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'});
+    return `<div class="feed-item"><div class="feed-top"><span>NOTA · Día ${it.dayInfo.n}, ${it.dayInfo.date}</span><span>${when}</span></div><div class="feed-text"><b>${it.person}:</b> ${it.text}</div></div>`;
+  }).join('');
+}
+
+/* ---------- tabs ---------- */
+const tabMeta = {
+  inicio:{eyebrow:'Familia · Patagonia argentina', title:'11 — 27 julio 2026'},
+  documentos:{eyebrow:'Para no andar buscando', title:'Documentos del viaje'},
+  historial:{eyebrow:'Todo lo que han ido agregando', title:'Historial familiar'},
+};
+document.querySelectorAll('.navbtn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('.navbtn').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    document.getElementById('view-'+tab).classList.add('active');
+    document.getElementById('tabEyebrow').textContent = tabMeta[tab].eyebrow;
+    document.getElementById('tabTitle').textContent = tabMeta[tab].title;
+    if(tab==='historial') renderFeed();
+    window.scrollTo(0,0);
+  });
+});
+
+/* ---------- countdown ---------- */
+function renderCountdown(){
+  const today = new Date('2026-06-30T00:00:00');
+  const trip = new Date('2026-07-11T00:00:00');
+  const diff = Math.round((trip-today)/86400000);
+  document.getElementById('countdownNum').textContent = diff>0 ? diff : 'En curso';
+}
+
+/* ---------- init ---------- */
+renderCountdown();
+renderTimeline('all');
+renderCustom();
+window.addEventListener('scroll', ()=>{
+  document.getElementById('topbar').classList.toggle('scrolled', window.scrollY>4);
+});
+</script>
+</body>
+</html>
