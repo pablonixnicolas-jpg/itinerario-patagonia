@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Patagonia 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F5F7F6; --surface:#FFFFFF; --ink:#15222B; --ink-soft:#4C5C63; --ink-faint:#8B9AA0;
+    --line:#DCE3E2; --teal:#2F6F70; --teal-deep:#1C4748; --teal-soft:#E4EFEE;
+    --amber:#D8932F; --amber-soft:#FBEFDA; --amber-deep:#7A5418;
+    --coral:#C75B3D; --coral-soft:#FAE6DD; --coral-deep:#7A331E;
+    --font-d:'Fraunces',serif; --font-b:'Plus Jakarta Sans',-apple-system,system-ui,sans-serif;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0; background:var(--bg); color:var(--ink); font-family:var(--font-b); -webkit-font-smoothing:antialiased;}
+  body{padding-bottom:84px; min-height:100vh;}
+  button{font-family:inherit; cursor:pointer; border:none; background:none;}
+  a{color:inherit;}
+  ::-webkit-scrollbar{display:none;}
+  .shell{max-width:480px; margin:0 auto; position:relative;}
+
+  .topbar{padding:22px 20px 16px; position:sticky; top:0; background:var(--bg); z-index:5; border-bottom:1px solid transparent;}
+  .topbar.scrolled{border-bottom-color:var(--line);}
+  .eyebrow{font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-faint); font-weight:600; margin:0 0 4px;}
+  .pagetitle{font-family:var(--font-d); font-size:26px; font-weight:600; margin:0; color:var(--ink);}
+
+  .stamp{margin:18px 20px 6px; background:var(--teal-deep); color:#fff; border-radius:20px; padding:18px 20px; display:flex; align-items:center; justify-content:space-between; gap:12px;}
+  .stamp-num{font-family:var(--font-d); font-size:38px; font-weight:600; line-height:1;}
+  .stamp-label{font-size:12px; color:#B9D6D6; margin-top:4px;}
+  .stamp-route{text-align:right; font-size:12.5px; color:#CFE3E2; line-height:1.5;}
+  .stamp-route b{color:#fff; font-weight:600;}
+
+  .view{display:none; padding:4px 20px 24px;}
+  .view.active{display:block;}
+
+  .timeline{position:relative; margin-top:14px;}
+  .timeline::before{content:''; position:absolute; left:21px; top:8px; bottom:8px; width:2px; background:var(--line);}
+  .day{position:relative; padding-left:52px; margin-bottom:14px;}
+  .day-dot{position:absolute; left:0; top:2px; width:44px; height:44px; border-radius:50%; background:var(--surface); border:1.5px solid var(--line); display:flex; align-items:center; justify-content:center; font-family:var(--font-d); font-weight:600; font-size:15px; color:var(--ink-soft);}
+  .day-card{width:100%; text-align:left; background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:13px 14px; display:block;}
+  .day-card:active{transform:scale(.99);}
+  .day-top{display:flex; justify-content:space-between; align-items:baseline; gap:8px; margin-bottom:5px;}
+  .day-date{font-size:12px; color:var(--ink-faint); font-weight:600;}
+  .city-pill{font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:99px; letter-spacing:.02em;}
+  .city-Ushuaia{background:var(--teal-soft); color:var(--teal-deep);}
+  .city-ElCalafate{background:var(--coral-soft); color:var(--coral-deep);}
+  .city-Bariloche{background:#EFE6F6; color:#5A3680;}
+  .city-BuenosAires{background:var(--amber-soft); color:var(--amber-deep);}
+  .day-title{font-size:15px; font-weight:600; margin:0 0 2px; color:var(--ink);}
+  .day-desc{font-size:12.5px; color:var(--ink-soft); line-height:1.5; margin:0;}
+  .day-time{display:flex; align-items:center; gap:5px; margin-top:7px; font-size:11.5px; color:var(--teal-deep); font-weight:600;}
+  .day-time svg{width:13px; height:13px; flex-shrink:0;}
+
+  .section-h{font-family:var(--font-d); font-size:19px; font-weight:600; margin:18px 0 10px;}
+  .section-sub{font-size:12.5px; color:var(--ink-soft); margin:-6px 0 14px; line-height:1.5;}
+
+  .doc-card{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:14px 16px; margin-bottom:10px;}
+  .doc-card h4{margin:0 0 8px; font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--teal-deep);}
+  .doc-row{display:flex; justify-content:space-between; gap:10px; font-size:13px; padding:6px 0; border-top:1px solid var(--line);}
+  .doc-row:first-of-type{border-top:none;}
+  .doc-row span:first-child{color:var(--ink-soft);}
+  .doc-row span:last-child{font-weight:600; text-align:right;}
+  .custom-form{display:flex; gap:8px; margin-top:10px;}
+  .custom-form input{flex:1; height:38px; border-radius:10px; border:1px solid var(--line); padding:0 10px; font-size:13px; background:var(--bg);}
+  .custom-form button{height:38px; width:38px; border-radius:10px; background:var(--ink); color:#fff; font-size:18px; line-height:1;}
+  .custom-item{display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-top:1px solid var(--line); font-size:13px;}
+  .custom-item button{color:var(--coral); font-size:11px; font-weight:700;}
+
+  .feed-item{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:13px 15px; margin-bottom:10px;}
+  .feed-top{display:flex; justify-content:space-between; font-size:11px; color:var(--ink-faint); margin-bottom:5px; font-weight:600;}
+  .feed-text{font-size:13.5px; line-height:1.5;}
+  .feed-text b{font-weight:700;}
+  .empty{text-align:center; padding:40px 16px; color:var(--ink-faint); font-size:13.5px; line-height:1.6;}
+
+  .navbar{position:fixed; left:0; right:0; bottom:0; background:rgba(255,255,255,.92); backdrop-filter:blur(14px); border-top:1px solid var(--line); display:flex; max-width:480px; margin:0 auto; padding:6px 6px calc(6px + env(safe-area-inset-bottom)); z-index:20;}
+  .navbtn{flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:8px 0; border-radius:12px; color:var(--ink-faint);}
+  .navbtn.on{color:var(--teal-deep); background:var(--teal-soft);}
+  .navbtn svg{width:21px; height:21px;}
+  .navbtn span{font-size:10.5px; font-weight:700;}
+
+  .scrim{position:fixed; inset:0; background:rgba(15,30,35,.45); z-index:30; display:none;}
+  .scrim.show{display:block;}
+  .sheet{position:fixed; left:0; right:0; bottom:0; max-width:480px; margin:0 auto; background:var(--surface); border-radius:22px 22px 0 0; z-index:31; max-height:88vh; overflow-y:auto; transform:translateY(100%); transition:transform .28s cubic-bezier(.32,.72,0,1); padding:10px 20px calc(28px + env(safe-area-inset-bottom));}
+  .sheet.show{transform:translateY(0);}
+  .sheet-grab{width:36px; height:4px; background:var(--line); border-radius:99px; margin:8px auto 14px;}
+  .sheet-top{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:10px;}
+  .sheet-pill{display:inline-block; font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:99px;}
+  .weather-pill{display:inline-flex; align-items:center; gap:4px; font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:99px; background:var(--bg); border:1px solid var(--line); color:var(--ink-soft);}
+  .sheet-title{font-family:var(--font-d); font-size:21px; font-weight:600; margin:0 0 4px;}
+  .sheet-date{font-size:12px; color:var(--ink-faint); font-weight:600; margin-bottom:14px;}
+  .schedule-list{margin-bottom:16px; border:1px solid var(--line); border-radius:14px; overflow:hidden;}
+  .sched-row{display:flex; justify-content:space-between; gap:10px; padding:10px 14px; font-size:13px; border-top:1px solid var(--line);}
+  .sched-row:first-child{border-top:none;}
+  .sched-main{display:flex; flex-direction:column;}
+  .sched-who{font-size:10.5px; color:var(--teal-deep); font-weight:700; text-transform:uppercase; letter-spacing:.03em; margin-top:2px;}
+  .sched-time{font-weight:600; text-align:right; white-space:nowrap; color:var(--ink); font-size:12.5px; padding-left:10px;}
+  .tips-box{background:var(--bg); border-radius:12px; padding:12px 14px; margin-bottom:16px;}
+  .tips-box h4{margin:0 0 8px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-faint);}
+  .tips-box ul{margin:0; padding-left:18px; font-size:13px; color:var(--ink-soft); line-height:1.6;}
+  .linkrow{display:flex; gap:10px; margin-bottom:16px;}
+  .linkbtn{flex:1; display:flex; align-items:center; justify-content:center; gap:6px; height:46px; border-radius:12px; border:1px solid var(--line); font-size:13px; font-weight:600; background:var(--bg);}
+  .linkbtn svg{width:16px; height:16px;}
+  .pack-title{font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-faint); margin:0 0 8px;}
+  .pack-list{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:18px;}
+  .pack-chip{font-size:12px; background:var(--bg); border:1px solid var(--line); padding:5px 10px; border-radius:99px; color:var(--ink-soft);}
+  .note-box{background:var(--amber-soft); border-radius:14px; padding:14px;}
+  .note-box h4{margin:0 0 10px; font-size:13px; font-weight:700; color:var(--amber-deep);}
+  .note-form{display:flex; flex-direction:column; gap:8px; margin-bottom:12px;}
+  .note-form input, .note-form textarea{border:1px solid #E9CE9E; border-radius:10px; padding:9px 11px; font-size:13px; font-family:inherit; background:#fff;}
+  .note-form button{align-self:flex-end; background:var(--amber-deep); color:#fff; padding:8px 16px; border-radius:10px; font-size:13px; font-weight:700;}
+  .note-item{background:#fff; border-radius:10px; padding:9px 11px; margin-top:8px; font-size:13px;}
+  .note-item .who{font-weight:700; font-size:11.5px; color:var(--amber-deep); margin-bottom:2px;}
+
+  .toast{position:fixed; bottom:96px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; font-size:12.5px; font-weight:600; padding:10px 18px; border-radius:99px; z-index:50; opacity:0; pointer-events:none; transition:opacity .25s;}
+  .toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="topbar" id="topbar">
+    <p class="eyebrow" id="tabEyebrow">Familia · Patagonia argentina</p>
+    <h1 class="pagetitle" id="tabTitle">11 — 27 julio 2026</h1>
+  </div>
+
+  <div class="view active" id="view-inicio">
+    <div class="stamp">
+      <div>
+        <div class="stamp-num" id="countdownNum">--</div>
+        <div class="stamp-label">días para salir</div>
+      </div>
+      <div class="stamp-route">Guatemala → Buenos Aires<br><b>Ushuaia · Calafate · Bariloche</b><br>17 días, 16 noches</div>
+    </div>
+    <div class="timeline" id="timeline"></div>
+  </div>
+
+  <div class="view" id="view-documentos">
+    <p class="section-sub">Todo lo que vienen pidiendo al check-in, en un solo lugar.</p>
+    <div class="doc-card">
+      <h4>Vuelos internacionales</h4>
+      <div class="doc-row"><span>Ida · 11 jul</span><span>Copa 389 07:09 GUA→PTY<br>Copa 219 → EZE 22:27</span></div>
+      <div class="doc-row"><span>Vuelta · 27 jul</span><span>Copa 278 14:49 EZE→PTY<br>Copa 496 → GUA 23:07</span></div>
+      <div class="doc-row"><span>Internos</span><span>Aerolíneas Argentinas</span></div>
+    </div>
+    <div class="doc-card">
+      <h4>Hoteles (5*)</h4>
+      <div class="doc-row"><span>Buenos Aires</span><span><a href="https://sofitel.accor.com/en/hotels/8932.html" target="_blank" rel="noopener" style="color:var(--teal-deep); text-decoration:underline;">Sofitel Recoleta ↗</a></span></div>
+      <div class="doc-row"><span>Ushuaia</span><span><a href="https://www.lashayas.com.ar/" target="_blank" rel="noopener" style="color:var(--teal-deep); text-decoration:underline;">Las Hayas ↗</a></span></div>
+      <div class="doc-row"><span>El Calafate</span><span><a href="https://www.hotelxelena.com/" target="_blank" rel="noopener" style="color:var(--teal-deep); text-decoration:underline;">Xelena ↗</a></span></div>
+      <div class="doc-row"><span>Bariloche</span><span><a href="https://www.choicehotels.com/es-xl/argentina/san-carlos-de-bariloche/radisson-blu-hotels/aa022" target="_blank" rel="noopener" style="color:var(--teal-deep); text-decoration:underline;">Radisson Blu ↗</a></span></div>
+    </div>
+    <div class="doc-card">
+      <h4>Cenas reservadas</h4>
+      <div class="doc-row"><span>23 jul</span><span>Don Julio</span></div>
+      <div class="doc-row"><span>24 jul</span><span>Miguel Ángel</span></div>
+      <div class="doc-row"><span>25 jul</span><span>Bestial Rooftop</span></div>
+    </div>
+    <div class="doc-card">
+      <h4>Seguro y agencia</h4>
+      <div class="doc-row"><span>Assist-Card</span><span>Cobertura esquí hasta $60,000</span></div>
+      <div class="doc-row"><span>Turansa</span><span>Lesbia Roxana López</span></div>
+      <div class="doc-row"><span>Teléfono</span><span>(502) 2390-5757</span></div>
+    </div>
+    <div class="doc-card">
+      <h4>Códigos y notas propias</h4>
+      <div id="customList"></div>
+      <div class="custom-form">
+        <input id="customLabel" placeholder="Ej. Confirmación Sofitel">
+        <input id="customValue" placeholder="Código / dato">
+        <button id="customAdd">+</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="view" id="view-historial">
+    <p class="section-sub">Notas de toda la familia, en orden. Se guardan en el enlace del artifact y se comparten entre todos los que lo abran.</p>
+    <div id="feedList"></div>
+  </div>
+
+</div>
+
+<div class="navbar">
+  <button class="navbtn on" data-tab="inicio">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9"/></svg>
+    <span>Inicio</span>
+  </button>
+  <button class="navbtn" data-tab="documentos">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+    <span>Documentos</span>
+  </button>
+  <button class="navbtn" data-tab="historial">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>
+    <span>Historial</span>
+  </button>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- storage helpers ---------- */
+async function getData(key, fallback){
+  try{ const r = await window.storage.get(key, true); return r ? JSON.parse(r.value) : fallback; }
+  catch(e){ return fallback; }
+}
+async function setData(key, value){
+  try{ await window.storage.set(key, JSON.stringify(value), true); }
+  catch(e){ console.error('storage error', e); }
+}
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 1800);
+}
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function ytSearch(q){ return 'https://www.youtube.com/results?search_query='+encodeURIComponent(q); }
+function wikiSearch(q){ return 'https://es.wikipedia.org/w/index.php?search='+encodeURIComponent(q); }
+function cityClass(c){ return 'city-'+c.replace(/\s+/g,''); }
+
+/* ---------- reference data per destination ---------- */
+const cityInfo = {
+  'Ushuaia': {temp:'-2°C a 6°C', pack:['Ropa térmica','Botas impermeables','Gorro, bufanda y guantes','Protector labial y lentes de sol']},
+  'El Calafate': {temp:'-4°C a 5°C', pack:['Ropa térmica','Botas impermeables','Gorro y guantes','Batería externa (el frío gasta más batería)']},
+  'Bariloche': {temp:'-3°C a 7°C', pack:['Ropa térmica','Pantalón impermeable','Botas','Guantes y lentes de sol','Mochila con agua, snack y batería externa']},
+  'Buenos Aires': {temp:null, pack:['Ropa casual elegante para las cenas reservadas']},
+};
+
+/* ---------- trip data (de los 5 capítulos de la guía familiar) ---------- */
+const days = [
+{n:1, date:'Sáb 11 jul', city:'Buenos Aires', title:'Guatemala → Buenos Aires', timeSummary:'05:00 levantada → 22:27 llegada BA', q:'aeropuerto La Aurora Guatemala',
+ schedule:[
+  {time:'05:00', activity:'Levantarse, revisar documentos y equipaje'},
+  {time:'05:45', activity:'Salida hacia el Aeropuerto La Aurora'},
+  {time:'06:30', activity:'Documentar equipaje'},
+  {time:'07:00', activity:'Migración y controles de seguridad; desayuno ligero y cargar dispositivos antes de abordar'},
+  {time:'07:09', activity:'Salida Guatemala · Copa 389'},
+  {time:'En vuelo', activity:'Descansar, hidratarse y ajustar el reloj a la hora de Argentina'},
+  {time:'22:27', activity:'Llegada Buenos Aires · Copa 219'},
+ ],
+ tips:['Pasaportes y boletos','Medicamentos y cargadores','Ropa de abrigo en el equipaje de mano','Botella de agua y snacks','Confirmar vuelos y equipaje']},
+
+{n:2, date:'Dom 12 jul', city:'Buenos Aires', title:'Buenos Aires → Ushuaia', timeSummary:'Vuelo a Ushuaia · llegada por la tarde', q:'Ushuaia ciudad más austral del mundo',
+ schedule:[
+  {time:'Llegada', activity:'Ingreso a Argentina, migración y recolección de equipaje si aplica'},
+  {time:'Conexión', activity:'Traslado al vuelo hacia Ushuaia (horario por confirmar)'},
+  {time:'Llegada Ushuaia', activity:'Traslado al hotel y check-in'},
+  {time:'16:00', activity:'Paseo corto por los alrededores si el horario lo permite'},
+  {time:'19:30', activity:'Cena tranquila y descanso'},
+ ],
+ tips:['Confirmar excursión al Parque Nacional Tierra del Fuego','Confirmar navegación por el Canal Beagle','Confirmar restaurante de la primera noche']},
+
+{n:3, date:'Lun 13 jul', city:'Ushuaia', title:'Tierra del Fuego, Tren del Fin del Mundo y Canal Beagle', timeSummary:'Día completo · mismo plan para toda la familia', q:'Parque Nacional Tierra del Fuego Tren del Fin del Mundo',
+ schedule:[
+  {time:'Mañana', activity:'Salida hacia el Parque Nacional Tierra del Fuego: miradores, senderos y Bahía Lapataia'},
+  {time:'Media mañana', activity:'Tren del Fin del Mundo (clase turista)'},
+  {time:'Tarde', activity:'Navegación a la Isla de Lobos y Pájaros por el Canal de Beagle, frente al Faro Les Éclaireurs (si está confirmada)'},
+  {time:'Noche', activity:'Cena'},
+ ],
+ tips:['Este día concentra los atractivos principales de Ushuaia, mismo plan para todos','Reservar entradas con anticipación','Llevar calzado impermeable']},
+
+{n:4, date:'Mar 14 jul', city:'Ushuaia', title:'Cerro Castor · esquí día 1', timeSummary:'8:30/10:30 salida → 15:30/17:00 regreso · esquí (hijos) / plan alterno (Gabriela)', q:'Cerro Castor Ushuaia esquí',
+ schedule:[
+  {time:'8:30am o 10:30am', activity:'Traslado hotel → Cerro Castor', who:'Antonio, Nico y Álvaro'},
+  {time:'8:30am o 10:30am – 3:30pm/5:00pm', activity:'Esquí en Cerro Castor', who:'Antonio, Nico y Álvaro'},
+  {time:'Día', activity:'Plan alterno: spa, centro de Ushuaia, café o chocolate caliente, compras o descanso en el hotel', who:'Gabriela'},
+  {time:'3:30pm o 5:00pm', activity:'Regreso Cerro Castor → hotel', who:'Antonio, Nico y Álvaro'},
+  {time:'20:00', activity:'Cena'},
+ ],
+ tips:['Reservar equipo, clases y pases con anticipación si no están incluidos','El equipo de esquí/snow se renta en el centro']},
+
+{n:5, date:'Mié 15 jul', city:'Ushuaia', title:'Cerro Castor · esquí día 2', timeSummary:'8:30/10:30 salida → 15:30/17:00 regreso · esquí (hijos) / plan alterno (Gabriela)', q:'Cerro Castor Ushuaia esquí',
+ schedule:[
+  {time:'8:30am o 10:30am', activity:'Traslado hotel → Cerro Castor', who:'Antonio, Nico y Álvaro'},
+  {time:'8:30am o 10:30am – 3:30pm/5:00pm', activity:'Esquí en Cerro Castor', who:'Antonio, Nico y Álvaro'},
+  {time:'Día', activity:'Plan alterno: Museo del Fin del Mundo, paseo suave, compras, descanso', who:'Gabriela'},
+  {time:'3:30pm o 5:00pm', activity:'Regreso Cerro Castor → hotel', who:'Antonio, Nico y Álvaro'},
+  {time:'20:30', activity:'Cena de despedida en Ushuaia'},
+ ],
+ tips:['Preparar equipaje por la noche para el vuelo del 16 de julio']},
+
+{n:6, date:'Jue 16 jul', city:'El Calafate', title:'Ushuaia → El Calafate', timeSummary:'07:00 salida hotel → 19:30 cena en Calafate', q:'El Calafate Santa Cruz Patagonia',
+ schedule:[
+  {time:'07:00', activity:'Desayuno y check-out'},
+  {time:'09:00', activity:'Traslado al aeropuerto'},
+  {time:'Vuelo', activity:'Salida hacia El Calafate'},
+  {time:'Llegada', activity:'Check-in en el hotel y almuerzo'},
+  {time:'16:00', activity:'Paseo por la avenida principal y tiendas locales'},
+  {time:'19:30', activity:'Cena y descanso'},
+ ],
+ tips:['Confirmar la excursión del día siguiente','Comprar agua y snacks para el parque']},
+
+{n:7, date:'Vie 17 jul', city:'El Calafate', title:'Glaciar Perito Moreno', timeSummary:'07:00 – 20:00 · Glaciar Perito Moreno', q:'Glaciar Perito Moreno',
+ schedule:[
+  {time:'07:00', activity:'Desayuno'},
+  {time:'08:00', activity:'Salida hacia el Parque Nacional Los Glaciares'},
+  {time:'10:00–14:00', activity:'Recorrido por pasarelas y miradores del glaciar'},
+  {time:'14:30', activity:'Almuerzo con vista al parque'},
+  {time:'16:00', activity:'Opcional: navegación frente al glaciar'},
+  {time:'18:00', activity:'Regreso al hotel'},
+  {time:'20:00', activity:'Cena'},
+ ],
+ tips:['Llevar lentes de sol y guantes','No perder la oportunidad de esperar el desprendimiento de hielo']},
+
+{n:8, date:'Sáb 18 jul', city:'El Calafate', title:'Tour Todo Glaciares', timeSummary:'Día completo · navegación Spegazzini/Upsala', q:'Todo Glaciares Spegazzini Upsala navegación',
+ schedule:[
+  {time:'Mañana', activity:'Salida desde Punta Bandera, navegación por el Canal Upsala'},
+  {time:'Media mañana', activity:'Canal Spegazzini y vista de los Glaciares Heim Sur y Peineta'},
+  {time:'Mediodía', activity:'Desembarco en Base Spegazzini, Sendero del Bosque y tiempo en el refugio'},
+  {time:'Tarde', activity:'Regreso a Punta Bandera y traslado al hotel'},
+  {time:'Noche', activity:'Cena'},
+ ],
+ tips:['Almuerzo no incluido: llevar vianda o comprar en el refugio Spegazzini','Reservar con copias de pasaporte de los pasajeros con anticipación','Llevar lentes de sol, guantes y batería externa']},
+
+{n:9, date:'Dom 19 jul', city:'Bariloche', title:'Llegada a Bariloche', timeSummary:'08:00 salida Calafate → 20:00 cena en Bariloche', q:'San Carlos de Bariloche Patagonia',
+ schedule:[
+  {time:'08:00', activity:'Desayuno y check-out en El Calafate'},
+  {time:'Mañana', activity:'Vuelo hacia Bariloche'},
+  {time:'Llegada', activity:'Check-in en el hotel'},
+  {time:'15:30', activity:'Paseo por el Centro Cívico y la costanera'},
+  {time:'17:00', activity:'Visita a una chocolatería artesanal'},
+  {time:'20:00', activity:'Cena y descanso'},
+ ],
+ tips:['Confirmar horarios de esquí para los siguientes días','Revisar el pronóstico del tiempo']},
+
+{n:10, date:'Lun 20 jul', city:'Bariloche', title:'Cerro Catedral', timeSummary:'08:30 – 16:30 · esquí (niños) / excursión (Gabriela)', q:'Cerro Catedral Bariloche esquí',
+ schedule:[
+  {time:'07:30', activity:'Desayuno'},
+  {time:'08:30', activity:'Salida hacia Cerro Catedral'},
+  {time:'09:30–16:00', activity:'Esquí', who:'Antonio, Nico y Álvaro'},
+  {time:'09:30–15:30', activity:'Circuito Chico y Cerro Campanario', who:'Gabriela'},
+  {time:'16:30', activity:'Regreso al hotel'},
+  {time:'20:00', activity:'Cena'},
+ ],
+ tips:['Reservar con anticipación clases y equipo de esquí','Llevar cámara para las vistas panorámicas']},
+
+{n:11, date:'Mar 21 jul', city:'Bariloche', title:'Segundo día de esquí', timeSummary:'09:30 – 17:00 · esquí (niños) / paseo y spa (Gabriela)', q:'Cerro Catedral Bariloche esquí',
+ schedule:[
+  {time:'08:00', activity:'Desayuno'},
+  {time:'09:30–16:00', activity:'Esquí', who:'Los hijos'},
+  {time:'10:00–15:00', activity:'Paseo lacustre, chocolaterías y spa opcional', who:'Gabriela'},
+  {time:'17:00', activity:'Chocolate caliente en el centro'},
+  {time:'20:00', activity:'Cena'},
+ ],
+ tips:['Buen día para compras de chocolate y recuerdos','Usar calzado con buena tracción']},
+
+{n:12, date:'Mié 22 jul', city:'Bariloche', title:'Ruta de los 7 Lagos', timeSummary:'08:30 – 19:00 · Ruta de los 7 Lagos', q:'Ruta de los Siete Lagos San Martín de los Andes',
+ schedule:[
+  {time:'07:30', activity:'Desayuno'},
+  {time:'08:30', activity:'Salida a la excursión de la Ruta de los 7 Lagos'},
+  {time:'13:00', activity:'Almuerzo durante el recorrido'},
+  {time:'17:30', activity:'Regreso a Bariloche'},
+  {time:'19:00', activity:'Preparar equipaje para viajar a Buenos Aires al día siguiente'},
+ ],
+ tips:['Confirmar vuelo del 23 de julio','Llevar documento y equipaje organizado','Pendiente confirmar: ¿el vuelo a Buenos Aires es el 22 o el 23? Si es el 22, este día cambia']},
+
+{n:13, date:'Jue 23 jul', city:'Buenos Aires', title:'Llegada a Buenos Aires', timeSummary:'Vuelo a BA · 21:30 cena en Don Julio', q:'Puerto Madero Buenos Aires',
+ schedule:[
+  {time:'Mañana', activity:'Vuelo desde Bariloche y traslado al hotel'},
+  {time:'13:30', activity:'Almuerzo y check-in'},
+  {time:'15:30', activity:'Paseo por Puerto Madero o alrededores del hotel'},
+  {time:'18:30', activity:'Descanso y cambio de ropa'},
+  {time:'21:30', activity:'Cena reservada en Don Julio'},
+ ],
+ tips:['Llegar 15 minutos antes de la reserva','Probar el bife de chorizo y guardar espacio para el postre','Pendiente confirmar: ¿la cena de esta noche es Don Julio (21:30) o se mueve al 25?']},
+
+{n:14, date:'Vie 24 jul', city:'Buenos Aires', title:'Recoleta y Avenida Alvear', timeSummary:'08:30 – 20:00 · Recoleta y cena en Miguel Ángel', q:'Recoleta Buenos Aires Alvear Palace',
+ schedule:[
+  {time:'08:30', activity:'Desayuno'},
+  {time:'10:00', activity:'Recorrido por Recoleta'},
+  {time:'12:30', activity:'Té en el Alvear Palace Hotel'},
+  {time:'15:00', activity:'Tiempo libre para compras'},
+  {time:'20:00', activity:'Cena en Miguel Ángel (ajustar según la hora de la reserva)'},
+ ],
+ tips:['Confirmar la hora de la reserva','Vestimenta casual elegante','Pendiente confirmar: ¿Michelángelo/Miguel Ángel es una noche o dos, y en qué fecha exacta?']},
+
+{n:15, date:'Sáb 25 jul', city:'Buenos Aires', title:'Centro histórico', timeSummary:'09:00 – 21:00 · centro histórico y Bestial Rooftop', q:'Plaza de Mayo San Telmo Buenos Aires',
+ schedule:[
+  {time:'09:00', activity:'Plaza de Mayo y Catedral Metropolitana'},
+  {time:'11:00', activity:'Basílica María Auxiliadora y San Carlos'},
+  {time:'13:00', activity:'Almuerzo'},
+  {time:'15:00', activity:'Mercado de San Telmo'},
+  {time:'18:30', activity:'Regreso al hotel'},
+  {time:'21:00', activity:'Reserva en Bestial Rooftop'},
+ ],
+ tips:['Llegar antes del atardecer para disfrutar las vistas']},
+
+{n:16, date:'Dom 26 jul', city:'Buenos Aires', title:'Cultura y compras', timeSummary:'09:00 – 20:00 · Teatro Colón y cena de despedida', q:'Teatro Colón Buenos Aires',
+ schedule:[
+  {time:'09:00', activity:'Visita al Teatro Colón (si tienen tour reservado)'},
+  {time:'11:30', activity:'Catedral Ortodoxa Rusa de la Santísima Trinidad'},
+  {time:'13:30', activity:'Almuerzo'},
+  {time:'15:30', activity:'Compras de último momento'},
+  {time:'20:00', activity:'Cena de despedida'},
+ ],
+ tips:['Empacar las compras al regresar al hotel','Pendiente confirmar: ¿este día es Estancia Santa Susana o el plan de Teatro Colón + Catedral Ortodoxa + compras?']},
+
+{n:17, date:'Lun 27 jul', city:'Buenos Aires', title:'Regreso a Guatemala', timeSummary:'Check-out → 14:49 salida → 23:07 llegada Panamá', q:'aeropuerto Ezeiza vuelos Panamá',
+ schedule:[
+  {time:'Mañana', activity:'Check-out y traslado al aeropuerto'},
+  {time:'3h antes', activity:'Presentarse para el vuelo internacional'},
+  {time:'14:49', activity:'Salida Buenos Aires · Copa 278'},
+  {time:'23:07', activity:'Llegada Panamá · Copa 496'},
+ ],
+ tips:['Verificar documentación y equipaje antes de salir del hotel']},
+];
+
+/* ---------- render: timeline ---------- */
+function renderTimeline(){
+  const html = days.map(d=>`
+    <div class="day">
+      <div class="day-dot">${d.n}</div>
+      <button class="day-card" onclick="openDay(${d.n})">
+        <div class="day-top">
+          <span class="day-date">Día ${d.n} · ${d.date}</span>
+          <span class="city-pill ${cityClass(d.city)}">${d.city}</span>
+        </div>
+        <p class="day-title">${d.title}</p>
+        <p class="day-time"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>${d.timeSummary}</p>
+      </button>
+    </div>`).join('');
+  document.getElementById('timeline').innerHTML = html;
+}
+
+/* ---------- day sheet ---------- */
+async function openDay(n){
+  const d = days.find(x=>x.n===n);
+  const notes = await getData('notes:day'+n, []);
+  const info = cityInfo[d.city] || {};
+  const sheet = document.getElementById('sheet');
+  sheet.innerHTML = `
+    <div class="sheet-grab"></div>
+    <div class="sheet-top">
+      <span class="sheet-pill ${cityClass(d.city)}">${d.city}</span>
+      ${info.temp?`<span class="weather-pill">Clima: ${info.temp}</span>`:''}
+    </div>
+    <h2 class="sheet-title">${d.title}</h2>
+    <p class="sheet-date">Día ${d.n} · ${d.date}</p>
+    <div class="schedule-list">${d.schedule.map(s=>`
+      <div class="sched-row">
+        <div class="sched-main">${s.activity}${s.who?`<span class="sched-who">${s.who}</span>`:''}</div>
+        <div class="sched-time">${s.time}</div>
+      </div>`).join('')}</div>
+    ${d.tips && d.tips.length?`<div class="tips-box"><h4>Notas y reservas por confirmar</h4><ul>${d.tips.map(t=>`<li>${t}</li>`).join('')}</ul></div>`:''}
+    <div class="linkrow">
+      <a class="linkbtn" target="_blank" rel="noopener" href="${wikiSearch(d.q)}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        Leer más
+      </a>
+      <a class="linkbtn" target="_blank" rel="noopener" href="${ytSearch(d.q)}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="6" width="18" height="12" rx="3"/><path d="m10 9.5 5 2.5-5 2.5z" fill="currentColor" stroke="none"/></svg>
+        Ver videos
+      </a>
+    </div>
+    ${info.pack && info.pack.length?`<p class="pack-title">Para llevar en ${d.city}</p><div class="pack-list">${info.pack.map(p=>`<span class="pack-chip">${p}</span>`).join('')}</div>`:''}
+    <div class="note-box">
+      <h4>Notas de la familia</h4>
+      <div class="note-form">
+        <input id="noteWho" placeholder="Tu nombre">
+        <textarea id="noteText" rows="2" placeholder="Ej. Reservar mesa en tal restaurante, o qué hacer en el tiempo libre"></textarea>
+        <button onclick="addNote(${n})">Agregar</button>
+      </div>
+      <div id="noteList">${notes.map(noteHtml).join('')}</div>
+    </div>
+  `;
+  showSheet();
+}
+function noteHtml(it){ return `<div class="note-item"><div class="who">${it.person}</div>${it.text}</div>`; }
+async function addNote(n){
+  const who = document.getElementById('noteWho').value.trim();
+  const text = document.getElementById('noteText').value.trim();
+  if(!who || !text){ toast('Falta el nombre o la nota'); return; }
+  const key = 'notes:day'+n;
+  const notes = await getData(key, []);
+  notes.push({id:uid(), person:who, text, ts:Date.now(), day:n});
+  await setData(key, notes);
+  toast('Agregado al día '+n);
+  openDay(n);
+}
+
+/* ---------- sheet open/close ---------- */
+function showSheet(){
+  document.getElementById('scrim').classList.add('show');
+  document.getElementById('sheet').classList.add('show');
+}
+function hideSheet(){
+  document.getElementById('scrim').classList.remove('show');
+  document.getElementById('sheet').classList.remove('show');
+}
+document.getElementById('scrim').addEventListener('click', hideSheet);
+
+/* ---------- documentos ---------- */
+async function renderCustom(){
+  const items = await getData('vault:custom', []);
+  document.getElementById('customList').innerHTML = items.length ? items.map(it=>`
+    <div class="custom-item"><span>${it.label}: <b>${it.value}</b></span><button onclick="removeCustom('${it.id}')">quitar</button></div>
+  `).join('') : '';
+}
+document.getElementById('customAdd').addEventListener('click', async ()=>{
+  const label = document.getElementById('customLabel').value.trim();
+  const value = document.getElementById('customValue').value.trim();
+  if(!label||!value){ toast('Falta el dato o la etiqueta'); return; }
+  const items = await getData('vault:custom', []);
+  items.push({id:uid(), label, value});
+  await setData('vault:custom', items);
+  document.getElementById('customLabel').value='';
+  document.getElementById('customValue').value='';
+  renderCustom();
+  toast('Guardado');
+});
+async function removeCustom(id){
+  let items = await getData('vault:custom', []);
+  items = items.filter(i=>i.id!==id);
+  await setData('vault:custom', items);
+  renderCustom();
+}
+
+/* ---------- historial ---------- */
+async function renderFeed(){
+  let allNotes = [];
+  for(const d of days){
+    const notes = await getData('notes:day'+d.n, []);
+    allNotes = allNotes.concat(notes.map(n=>({...n, dayInfo:d})));
+  }
+  allNotes.sort((a,b)=>b.ts-a.ts);
+  const el = document.getElementById('feedList');
+  if(!allNotes.length){ el.innerHTML = '<div class="empty">Todavía no hay notas.<br>Lo que agreguen en cualquier día va a aparecer aquí.</div>'; return; }
+  el.innerHTML = allNotes.map(it=>{
+    const when = new Date(it.ts).toLocaleString('es-GT', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'});
+    return `<div class="feed-item"><div class="feed-top"><span>Día ${it.dayInfo.n}, ${it.dayInfo.date}</span><span>${when}</span></div><div class="feed-text"><b>${it.person}:</b> ${it.text}</div></div>`;
+  }).join('');
+}
+
+/* ---------- tabs ---------- */
+const tabMeta = {
+  inicio:{eyebrow:'Familia · Patagonia argentina', title:'11 — 27 julio 2026'},
+  documentos:{eyebrow:'Para no andar buscando', title:'Documentos del viaje'},
+  historial:{eyebrow:'Todo lo que han ido agregando', title:'Historial familiar'},
+};
+document.querySelectorAll('.navbtn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('.navbtn').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    document.getElementById('view-'+tab).classList.add('active');
+    document.getElementById('tabEyebrow').textContent = tabMeta[tab].eyebrow;
+    document.getElementById('tabTitle').textContent = tabMeta[tab].title;
+    if(tab==='historial') renderFeed();
+    window.scrollTo(0,0);
+  });
+});
+
+/* ---------- countdown ---------- */
+function renderCountdown(){
+  const today = new Date('2026-07-07T00:00:00');
+  const trip = new Date('2026-07-11T00:00:00');
+  const diff = Math.round((trip-today)/86400000);
+  document.getElementById('countdownNum').textContent = diff>0 ? diff : 'En curso';
+}
+
+/* ---------- init ---------- */
+renderCountdown();
+renderTimeline();
+renderCustom();
+window.addEventListener('scroll', ()=>{
+  document.getElementById('topbar').classList.toggle('scrolled', window.scrollY>4);
+});
+</script>
+</body>
+</html>
