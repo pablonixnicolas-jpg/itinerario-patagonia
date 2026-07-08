@@ -28,11 +28,15 @@
   .eyebrow{font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-faint); font-weight:600; margin:0 0 4px;}
   .pagetitle{font-family:var(--font-d); font-size:26px; font-weight:600; margin:0; color:var(--ink);}
 
-  .stamp{margin:18px 20px 6px; background:var(--teal-deep); color:#fff; border-radius:20px; padding:18px 20px; display:flex; align-items:center; justify-content:space-between; gap:12px;}
-  .stamp-num{font-family:var(--font-d); font-size:38px; font-weight:600; line-height:1;}
-  .stamp-label{font-size:12px; color:#B9D6D6; margin-top:4px;}
-  .stamp-route{text-align:right; font-size:12.5px; color:#CFE3E2; line-height:1.5;}
-  .stamp-route b{color:#fff; font-weight:600;}
+  .stamp{margin:18px 20px 10px; background:var(--teal-soft); color:var(--teal-deep); border-radius:16px; padding:14px 18px; font-size:12.5px; line-height:1.6; text-align:center; font-weight:600;}
+  .stamp b{display:block; font-family:var(--font-d); font-size:15px; font-weight:600; margin:2px 0;}
+
+  .countdown-card{margin:18px 20px 6px; background:var(--teal-deep); color:#fff; border-radius:22px; padding:20px 18px 18px;}
+  .countdown-label{font-size:11px; letter-spacing:.16em; text-transform:uppercase; text-align:center; color:#B9D6D6; font-weight:700; margin:0 0 14px;}
+  .countdown-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:8px;}
+  .cd-unit{display:flex; flex-direction:column; align-items:center; background:rgba(255,255,255,.08); border-radius:14px; padding:12px 4px;}
+  .cd-num{font-family:var(--font-d); font-size:30px; font-weight:600; line-height:1; font-variant-numeric:tabular-nums;}
+  .cd-unit-label{font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:#B9D6D6; font-weight:700; margin-top:6px;}
 
   .view{display:none; padding:4px 20px 24px;}
   .view.active{display:block;}
@@ -86,7 +90,7 @@
   .scrim.show{display:block;}
   .sheet{position:fixed; left:0; right:0; bottom:0; max-width:480px; margin:0 auto; background:var(--surface); border-radius:22px 22px 0 0; z-index:31; max-height:88vh; overflow-y:auto; transform:translateY(100%); transition:transform .28s cubic-bezier(.32,.72,0,1); padding:10px 20px calc(28px + env(safe-area-inset-bottom));}
   .sheet.show{transform:translateY(0);}
-  .sheet-grab{width:36px; height:4px; background:var(--line); border-radius:99px; margin:8px auto 14px;}
+  .sheet-grab{width:44px; height:5px; background:var(--ink-faint); border-radius:99px; margin:10px auto 14px; opacity:.5;}
   .sheet-top{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:10px;}
   .sheet-pill{display:inline-block; font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:99px;}
   .weather-pill{display:inline-flex; align-items:center; gap:4px; font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:99px; background:var(--bg); border:1px solid var(--line); color:var(--ink-soft);}
@@ -128,13 +132,16 @@
   </div>
 
   <div class="view active" id="view-inicio">
-    <div class="stamp">
-      <div>
-        <div class="stamp-num" id="countdownNum">--</div>
-        <div class="stamp-label">días para salir</div>
+    <div class="countdown-card" id="countdownCard">
+      <p class="countdown-label">Cuenta regresiva</p>
+      <div class="countdown-grid">
+        <div class="cd-unit"><span class="cd-num" id="cdDays">--</span><span class="cd-unit-label">Días</span></div>
+        <div class="cd-unit"><span class="cd-num" id="cdHours">--</span><span class="cd-unit-label">Horas</span></div>
+        <div class="cd-unit"><span class="cd-num" id="cdMin">--</span><span class="cd-unit-label">Min</span></div>
+        <div class="cd-unit"><span class="cd-num" id="cdSec">--</span><span class="cd-unit-label">Seg</span></div>
       </div>
-      <div class="stamp-route">Guatemala → Buenos Aires<br><b>Ushuaia · Calafate · Bariloche</b><br>17 días, 16 noches</div>
     </div>
+    <div class="stamp" id="stamp">Guatemala → Buenos Aires<br><b>Ushuaia · El Calafate · Bariloche</b><br>17 días, 16 noches</div>
     <div class="timeline" id="timeline"></div>
   </div>
 
@@ -493,6 +500,42 @@ function hideSheet(){
 }
 document.getElementById('scrim').addEventListener('click', hideSheet);
 
+/* ---------- swipe-down-to-close ---------- */
+(function(){
+  const sheet = document.getElementById('sheet');
+  let startY = 0, currentY = 0, dragging = false;
+
+  sheet.addEventListener('touchstart', (e)=>{
+    // Only start a drag-to-close if the sheet's own content is scrolled to the top,
+    // so it doesn't fight with normal scrolling inside the sheet.
+    if(sheet.scrollTop > 0) return;
+    startY = e.touches[0].clientY;
+    currentY = startY;
+    dragging = true;
+    sheet.style.transition = 'none';
+  }, {passive:true});
+
+  sheet.addEventListener('touchmove', (e)=>{
+    if(!dragging) return;
+    currentY = e.touches[0].clientY;
+    const delta = currentY - startY;
+    if(delta > 0){
+      sheet.style.transform = 'translateY('+delta+'px)';
+    }
+  }, {passive:true});
+
+  sheet.addEventListener('touchend', ()=>{
+    if(!dragging) return;
+    dragging = false;
+    sheet.style.transition = '';
+    const delta = currentY - startY;
+    if(delta > 90){
+      hideSheet();
+    }
+    sheet.style.transform = '';
+  });
+})();
+
 /* ---------- documentos ---------- */
 async function renderCustom(){
   const items = await getData('vault:custom', []);
@@ -557,10 +600,27 @@ document.querySelectorAll('.navbtn').forEach(btn=>{
 
 /* ---------- countdown ---------- */
 function renderCountdown(){
-  const today = new Date('2026-07-07T00:00:00');
   const trip = new Date('2026-07-11T00:00:00');
-  const diff = Math.round((trip-today)/86400000);
-  document.getElementById('countdownNum').textContent = diff>0 ? diff : 'En curso';
+  const card = document.getElementById('countdownCard');
+  function tick(){
+    const now = new Date();
+    const diff = trip - now;
+    if(diff <= 0){
+      card.remove();
+      clearInterval(timer);
+      return;
+    }
+    const days = Math.floor(diff / 86400000);
+    const hours = Math.floor((diff % 86400000) / 3600000);
+    const mins = Math.floor((diff % 3600000) / 60000);
+    const secs = Math.floor((diff % 60000) / 1000);
+    document.getElementById('cdDays').textContent = days;
+    document.getElementById('cdHours').textContent = String(hours).padStart(2,'0');
+    document.getElementById('cdMin').textContent = String(mins).padStart(2,'0');
+    document.getElementById('cdSec').textContent = String(secs).padStart(2,'0');
+  }
+  tick();
+  const timer = setInterval(tick, 1000);
 }
 
 /* ---------- init ---------- */
